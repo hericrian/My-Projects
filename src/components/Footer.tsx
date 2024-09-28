@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 const Footer = () => {
   return (
     <View style={styles.footer}>
-      <Text style={styles.text}>© 2024 - Meu App</Text>
+      <Text style={styles.text}>© 2024 - Developed by Héric Rían</Text>
     </View>
   );
 };

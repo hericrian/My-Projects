@@ -4,7 +4,7 @@ import { View, Text, StyleSheet } from "react-native";
 const Header = () => {
   return (
     <View style={styles.header}>
-      <Text style={styles.title}>Lista de Usuários</Text>
+      <Text style={styles.title}>User List</Text>
     </View>
   );
 };
@@ -12,8 +12,8 @@ const Header = () => {
 const styles = StyleSheet.create({
   header: {
     backgroundColor: "#6200ea",
-    padding: 20,
-    paddingTop: 40,
+    padding: 5,
+    paddingTop: 2,
     alignItems: "center",
   },
   title: {

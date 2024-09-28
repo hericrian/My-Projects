@@ -7,11 +7,14 @@ import Icon from "react-native-vector-icons/Ionicons"; // Importando os ícones
 import HomeScreen from "./src/screens/HomeScreen";
 import UserDetailsScreen from "./src/screens/UserDetailsScreen";
 import AboutScreen from "./src/screens/AboutScreen";
+import EditUser from "./src/screens/EditUser"; // Importando o componente EditUser
+import Background from "./src/components/BackgroundImage";
 
 // Definindo os parâmetros que as telas esperam
 type RootStackParamList = {
   Home: undefined;
   UserDetails: { userId: number };
+  EditUser: { userId: number }; // Adicionando EditUser com o parâmetro userId
   Tabs: undefined;
 };
 
@@ -45,7 +48,7 @@ const TabNavigator = () => {
   );
 };
 
-// Criando o Stack Navigator para as telas Home e UserDetails
+// Criando o Stack Navigator para as telas Home, UserDetails e EditUser
 const Stack = createStackNavigator<RootStackParamList>();
 
 const HomeStackNavigator = () => {
@@ -60,6 +63,11 @@ const HomeStackNavigator = () => {
         name="UserDetails"
         component={UserDetailsScreen}
         options={{ title: "Detalhes do Usuário" }} // Mostra o título na tela de detalhes
+      />
+      <Stack.Screen
+        name="EditUser"
+        component={EditUser}
+        options={{ title: "Editar Usuário" }} // Mostra o título na tela de edição de usuário
       />
     </Stack.Navigator>
   );
