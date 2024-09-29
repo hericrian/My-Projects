@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TouchableOpacity, Alert, Modal, TextInput, Button } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import React, { useState } from "react";
+import { Alert, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
 // Defina os tipos para a navegação
 type RootStackParamList = {
   Home: undefined;
   UserDetails: { userId: number };
-  EditUser: { userId: number }; // Adicione o EditUser com o parâmetro userId
+  EditUser: { userId: number };
 };
 
 type UserCardNavigationProp = StackNavigationProp<
@@ -19,40 +19,62 @@ type UserCardProps = {
   id: number;
   name: string;
   email: string;
-  password: string; // Inclua a senha do usuário
+  password: string;
+  onDelete: (userId: number) => void; // Função para deletar usuário
 };
 
-const UserCard: React.FC<UserCardProps> = ({ id, name, email, password }) => {
+const UserCard: React.FC<UserCardProps> = ({ id, name, email, password, onDelete }) => {
   const navigation = useNavigation<UserCardNavigationProp>();
-  const [modalVisible, setModalVisible] = useState(false); // Estado para controle do modal
-  const [passwordModalVisible, setPasswordModalVisible] = useState(false); // Estado para controle do modal de senha
-  const [enteredPassword, setEnteredPassword] = useState(""); // Estado para a senha digitada
+  const [modalVisible, setModalVisible] = useState(false);
+  const [passwordModalVisible, setPasswordModalVisible] = useState(false);
+  const [enteredPassword, setEnteredPassword] = useState("");
 
   const handlePress = () => {
-    setModalVisible(true); // Abre o modal ao pressionar o card
+    setModalVisible(true);
   };
 
   const handleEdit = () => {
-    setModalVisible(false); // Fecha o modal de opções
-    setPasswordModalVisible(true); // Abre o modal de senha
+    setModalVisible(false);
+    setPasswordModalVisible(true);
   };
 
   const handleViewUser = () => {
-    navigation.navigate("UserDetails", { userId: id }); // Navega para UserDetails
-    setModalVisible(false); // Fecha o modal de opções
+    navigation.navigate("UserDetails", { userId: id });
+    setModalVisible(false);
   };
 
   const handlePasswordSubmit = () => {
-    // Verifica se a senha digitada está correta
     if (enteredPassword === password) {
-      navigation.navigate("EditUser", { userId: id }); // Navega para EditUser se a senha estiver correta
-      setPasswordModalVisible(false); // Fecha o modal de senha
-      setEnteredPassword(""); // Limpa a senha digitada
+      navigation.navigate("EditUser", { userId: id });
+      setPasswordModalVisible(false);
+      setEnteredPassword("");
     } else {
-      // Alerta de senha incorreta
-      Alert.alert("Erro", "Senha incorreta!"); 
-      setEnteredPassword(""); // Limpa a senha digitada para nova tentativa
+      Alert.alert("Erro", "Senha incorreta!");
+      setEnteredPassword("");
     }
+  };
+
+  const handleDelete = () => {
+    Alert.alert(
+      "Confirmar Exclusão",
+      "Você tem certeza que deseja deletar este usuário?",
+      [
+        { text: "Cancelar", style: "cancel" },
+        {
+          text: "Deletar",
+          onPress: () => {
+            onDelete(id); // Chama a função de deletar usuário
+            setModalVisible(false); // Fecha o modal
+          },
+        },
+      ],
+      { cancelable: true }
+    );
+  };
+
+  const closeModal = () => {
+    setModalVisible(false);
+    setPasswordModalVisible(false);
   };
 
   return (
@@ -69,14 +91,23 @@ const UserCard: React.FC<UserCardProps> = ({ id, name, email, password }) => {
         transparent={true}
         animationType="slide"
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)} // Fecha o modal ao pressionar fora
+        onRequestClose={closeModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>Escolha uma Opção</Text>
-            <Button title="Ver Usuário" onPress={handleViewUser} />
-            <Button title="Editar" onPress={handleEdit} />
-            <Button title="Cancelar" onPress={() => setModalVisible(false)} color="red" />
+            <TouchableOpacity style={styles.modalButton} onPress={handleViewUser}>
+              <Text style={styles.modalButtonText}>Ver Usuário</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={handleEdit}>
+              <Text style={styles.modalButtonText}>Editar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={handleDelete}>
+              <Text style={styles.modalButtonText}>Deletar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
+              <Text style={styles.modalButtonText}>Cancelar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -86,7 +117,7 @@ const UserCard: React.FC<UserCardProps> = ({ id, name, email, password }) => {
         transparent={true}
         animationType="slide"
         visible={passwordModalVisible}
-        onRequestClose={() => setPasswordModalVisible(false)} // Fecha o modal ao pressionar fora
+        onRequestClose={closeModal}
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
@@ -96,10 +127,14 @@ const UserCard: React.FC<UserCardProps> = ({ id, name, email, password }) => {
               placeholder="Senha"
               secureTextEntry
               value={enteredPassword}
-              onChangeText={setEnteredPassword} // Atualiza o estado da senha
+              onChangeText={setEnteredPassword}
             />
-            <Button title="Confirmar" onPress={handlePasswordSubmit} />
-            <Button title="Cancelar" onPress={() => setPasswordModalVisible(false)} color="red" />
+            <TouchableOpacity style={styles.modalButton} onPress={handlePasswordSubmit}>
+              <Text style={styles.modalButtonText}>Confirmar</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.modalButton} onPress={closeModal}>
+              <Text style={styles.modalButtonText}>Cancelar</Text>
+            </TouchableOpacity>
           </View>
         </View>
       </Modal>
@@ -113,6 +148,10 @@ const styles = StyleSheet.create({
     padding: 15,
     marginVertical: 10,
     borderRadius: 8,
+    borderWidth: 2, // Adiciona a borda
+    borderColor: "#6200ea", // Cor da borda roxa
+    width: '95%', // Define a largura do card como 95% da tela
+    alignSelf: 'center', // Centraliza o card na tela
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
@@ -130,7 +169,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "rgba(0, 0, 0, 0.5)", // Fundo semi-transparente
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
   },
   modalContent: {
     width: "80%",
@@ -150,6 +189,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     marginBottom: 15,
     paddingHorizontal: 10,
+  },
+  modalButton: {
+    backgroundColor: "#6200ea", // Cor do botão
+    padding: 10,
+    borderRadius: 5,
+    alignItems: "center",
+    marginVertical: 5,
+  },
+  modalButtonText: {
+    color: "white",
+    fontSize: 16,
   },
 });
 

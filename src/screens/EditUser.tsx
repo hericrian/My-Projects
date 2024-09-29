@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TextInput, Button } from "react-native";
-import { StackNavigationProp } from "@react-navigation/stack";
 import { RouteProp } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import React, { useEffect, useState } from "react";
+import { Button, Text, TextInput, View } from "react-native";
 
 // Definir o tipo de navegação e rotas
 type RootStackParamList = {
@@ -29,7 +29,7 @@ const EditUser: React.FC<Props> = ({ route, navigation }) => {
 
   // Carregar os dados do usuário
   useEffect(() => {
-    fetch(`http://192.168.0.103:3000/users/${userId}`)
+    fetch(`http://192.168.0.101:3000/users/${userId}`)
       .then((response) => response.json())
       .then((data) => setUser(data))
       .catch((error) => console.error("Erro ao carregar dados do usuário:", error));
@@ -40,7 +40,7 @@ const EditUser: React.FC<Props> = ({ route, navigation }) => {
   };
 
   const handleUpdateUser = () => {
-    fetch(`http://192.168.0.103:3000/users/${userId}`, {
+    fetch(`http://192.168.0.101:3000/users/${userId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

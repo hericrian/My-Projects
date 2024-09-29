@@ -1,20 +1,22 @@
-import React from "react";
+// App.tsx
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
-import { createDrawerNavigator } from "@react-navigation/drawer";
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import Icon from "react-native-vector-icons/Ionicons"; // Importando os ícones
+import React from "react";
+import Icon from "react-native-vector-icons/Ionicons";
+import AboutScreen from "./src/screens/AboutScreen";
+import AddUserScreen from "./src/screens/AddUser"; // Importando o componente AddUser
+import EditUser from "./src/screens/EditUser";
 import HomeScreen from "./src/screens/HomeScreen";
 import UserDetailsScreen from "./src/screens/UserDetailsScreen";
-import AboutScreen from "./src/screens/AboutScreen";
-import EditUser from "./src/screens/EditUser"; // Importando o componente EditUser
-import Background from "./src/components/BackgroundImage";
 
 // Definindo os parâmetros que as telas esperam
 type RootStackParamList = {
   Home: undefined;
+  AddUser: undefined;     // Adicionando AddUser
   UserDetails: { userId: number };
-  EditUser: { userId: number }; // Adicionando EditUser com o parâmetro userId
+  EditUser: { userId: number };
   Tabs: undefined;
 };
 
@@ -31,7 +33,7 @@ const TabNavigator = () => {
           tabBarIcon: ({ color, size }) => (
             <Icon name="home-outline" color={color} size={size} />
           ),
-          tabBarLabel: "Início", // Altera o label se necessário
+          tabBarLabel: "Início",
         }}
       />
       <Tab.Screen
@@ -48,7 +50,7 @@ const TabNavigator = () => {
   );
 };
 
-// Criando o Stack Navigator para as telas Home, UserDetails e EditUser
+// Criando o Stack Navigator para as telas Home, UserDetails, EditUser e AddUser
 const Stack = createStackNavigator<RootStackParamList>();
 
 const HomeStackNavigator = () => {
@@ -57,17 +59,22 @@ const HomeStackNavigator = () => {
       <Stack.Screen
         name="Tabs"
         component={TabNavigator}
-        options={{ headerShown: false }} // Oculta o header da navegação por tabs
+        options={{ headerShown: false }}
       />
       <Stack.Screen
         name="UserDetails"
         component={UserDetailsScreen}
-        options={{ title: "Detalhes do Usuário" }} // Mostra o título na tela de detalhes
+        options={{ title: "Detalhes do Usuário" }}
       />
       <Stack.Screen
         name="EditUser"
         component={EditUser}
-        options={{ title: "Editar Usuário" }} // Mostra o título na tela de edição de usuário
+        options={{ title: "Editar Usuário" }}
+      />
+      <Stack.Screen
+        name="AddUser" // Adicionando a tela de adicionar usuário
+        component={AddUserScreen}
+        options={{ title: "Adicionar Usuário" }}
       />
     </Stack.Navigator>
   );
