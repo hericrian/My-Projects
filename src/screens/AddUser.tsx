@@ -3,26 +3,26 @@ import { StackNavigationProp } from "@react-navigation/stack";
 import axios from "axios";
 import React, { useState } from "react";
 import { ActivityIndicator, Alert, Button, StyleSheet, Text, TextInput, View } from "react-native";
-import { RootStackParamList } from "../types/navigationTypes"; // ajuste o caminho conforme necessário
+
+// Defina o RootStackParamList se ainda não o fez
+type RootStackParamList = {
+  AddUser: { onGoBack: () => void }; // Definindo onGoBack como parte dos parâmetros
+};
 
 type AddUserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'AddUser'>;
 
-interface Params {
-  onGoBack: () => void;
-}
-
 interface Props {
   navigation: AddUserScreenNavigationProp;
-  route: RouteProp<{ params: Params }, 'AddUser'>;
+  route: RouteProp<RootStackParamList, 'AddUser'>; // Usando o tipo correto
 }
 
 const AddUserScreen: React.FC<Props> = ({ navigation, route }) => {
-  const { onGoBack } = route.params;
+  const { onGoBack } = route.params; // Obtendo a função onGoBack
 
   const [name, setName] = useState("");
-  const [city, setCity] = useState(""); // Novo estado para cidade
+  const [city, setCity] = useState("");
   const [email, setEmail] = useState("");
-  const [login, setLogin] = useState(""); // Novo estado para login
+  const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -42,32 +42,24 @@ const AddUserScreen: React.FC<Props> = ({ navigation, route }) => {
       return;
     }
 
+    if (password.length < 6) {
+      Alert.alert("Erro", "A senha deve ter pelo menos 6 caracteres.");
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // Verifica se o email ou login já estão em uso
-      const response = await axios.get(`http://192.168.0.101:3000/users?email=${email}`);
-      if (response.data.length > 0) {
-        Alert.alert("Erro", "Este email já está em uso.");
-        return;
-      }
-
-      const loginResponse = await axios.get(`http://192.168.0.101:3000/users?login=${login}`);
-      if (loginResponse.data.length > 0) {
-        Alert.alert("Erro", "Este login já está em uso.");
-        return;
-      }
-
-      const userResponse = await axios.post("http://192.168.0.101:3000/users", {
+      const userResponse = await axios.post("http://192.168.1.228:3000/users", {
         name,
         email,
-        login, // Inclui login no cadastro
+        login,
         password,
-        city, // Inclui cidade no cadastro
+        city,
       });
 
       Alert.alert("Usuário adicionado!", `ID: ${userResponse.data.id}`);
-      onGoBack();
+      onGoBack(); // Chama onGoBack após adicionar o usuário
       navigation.goBack();
     } catch (error) {
       console.error("Erro ao adicionar usuário:", error);
@@ -79,41 +71,13 @@ const AddUserScreen: React.FC<Props> = ({ navigation, route }) => {
 
   return (
     <View style={styles.container}>
-      <TextInput
-        placeholder="Nome"
-        value={name}
-        onChangeText={setName}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Cidade" // Adiciona o campo de cidade
-        value={city}
-        onChangeText={setCity}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        style={styles.input}
-        keyboardType="email-address"
-        autoCapitalize="none"
-      />
-      <TextInput
-        placeholder="Nome de Usuário" // Adiciona o campo de login
-        value={login}
-        onChangeText={setLogin}
-        style={styles.input}
-      />
-      <TextInput
-        placeholder="Senha"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        style={styles.input}
-      />
-      <Button title="Adicionar Usuário" onPress={handleAddUser} />
-      {loading && <ActivityIndicator size="large" color="#6200ea" />} 
+      <TextInput placeholder="Nome" value={name} onChangeText={setName} style={styles.input} />
+      <TextInput placeholder="Cidade" value={city} onChangeText={setCity} style={styles.input} />
+      <TextInput placeholder="Email" value={email} onChangeText={setEmail} style={styles.input} keyboardType="email-address" autoCapitalize="none" />
+      <TextInput placeholder="Nome de Usuário" value={login} onChangeText={setLogin} style={styles.input} />
+      <TextInput placeholder="Senha" value={password} onChangeText={setPassword} secureTextEntry style={styles.input} />
+      <Button title="Adicionar Usuário" onPress={handleAddUser} disabled={loading} />
+      {loading && <ActivityIndicator size="large" color="#6200ea" />}
       <Text style={styles.infoText}>Preencha todos os campos para adicionar um usuário.</Text>
     </View>
   );

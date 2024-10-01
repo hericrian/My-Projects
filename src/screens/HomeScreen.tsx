@@ -1,9 +1,9 @@
+// HomeScreen.tsx
 import { MaterialIcons } from "@expo/vector-icons";
 import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
-import { LinearGradient } from "expo-linear-gradient"; // Importa o LinearGradient
 import React, { useEffect, useState } from "react";
-import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Alert, FlatList, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View, ImageBackground } from "react-native";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import UserCard from "../components/UserCard";
@@ -22,7 +22,7 @@ const HomeScreen = () => {
 
   const fetchUsers = async () => {
     try {
-      const response = await axios.get("http://192.168.0.101:3000/users");
+      const response = await axios.get("http://192.168.1.228:3000/users");
       setUsers(response.data);
     } catch (error) {
       console.error("Erro ao buscar usuários:", error);
@@ -35,7 +35,7 @@ const HomeScreen = () => {
 
   const deleteUser = async (id: number) => {
     try {
-      await axios.delete(`http://192.168.0.101:3000/users/${id}`);
+      await axios.delete(`http://192.168.1.228:3000/users/${id}`);
       Alert.alert("Sucesso", "Usuário excluído com sucesso.");
       fetchUsers();
     } catch (error) {
@@ -79,9 +79,10 @@ const HomeScreen = () => {
   };
 
   return (
-    <LinearGradient 
-      colors={['#ffffff', '#000000']} // Degradê de branco para preto
+    <ImageBackground
+      source={{ uri: 'https://static.vecteezy.com/system/resources/previews/029/726/212/non_2x/3d-purple-illustration-icon-of-using-smartphone-for-login-or-sign-in-to-social-media-app-account-profile-front-free-png.png' }}
       style={styles.container}
+      imageStyle={{ opacity: 0.7 }}
     >
       <Header />
       <FlatList
@@ -98,12 +99,10 @@ const HomeScreen = () => {
         contentContainerStyle={styles.list}
       />
       <Footer />
-      {/* Botão Flutuante para Adicionar Usuário */}
       <TouchableOpacity style={styles.fab} onPress={handleAddUser}>
         <MaterialIcons name="add" size={24} color="white" />
       </TouchableOpacity>
 
-      {/* Modal para opções de usuário */}
       <Modal
         animationType="slide"
         transparent={true}
@@ -128,10 +127,11 @@ const HomeScreen = () => {
           </View>
         </View>
       </Modal>
-    </LinearGradient>
+    </ImageBackground>
   );
 };
 
+// Estilos (mantidos os mesmos)
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
   },
   list: {
     paddingHorizontal: 20,
-    paddingBottom: 100, // Espaço extra para o botão flutuante
+    paddingBottom: 100,
   },
   fab: {
     position: "absolute",

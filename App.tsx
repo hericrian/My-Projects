@@ -1,4 +1,3 @@
-// App.tsx
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { createDrawerNavigator } from "@react-navigation/drawer";
 import { NavigationContainer } from "@react-navigation/native";
@@ -6,21 +5,13 @@ import { createStackNavigator } from "@react-navigation/stack";
 import React from "react";
 import Icon from "react-native-vector-icons/Ionicons";
 import AboutScreen from "./src/screens/AboutScreen";
-import AddUserScreen from "./src/screens/AddUser"; // Importando o componente AddUser
+import AddUserScreen from "./src/screens/AddUser"; 
 import EditUser from "./src/screens/EditUser";
 import HomeScreen from "./src/screens/HomeScreen";
 import UserDetailsScreen from "./src/screens/UserDetailsScreen";
+import { UserProvider } from "./context/UserContext"; 
+import { RootStackParamList } from './src/types/navigation'; 
 
-// Definindo os parâmetros que as telas esperam
-type RootStackParamList = {
-  Home: undefined;
-  AddUser: undefined;     // Adicionando AddUser
-  UserDetails: { userId: number };
-  EditUser: { userId: number };
-  Tabs: undefined;
-};
-
-// Criando o Tab Navigator
 const Tab = createBottomTabNavigator();
 
 const TabNavigator = () => {
@@ -50,7 +41,6 @@ const TabNavigator = () => {
   );
 };
 
-// Criando o Stack Navigator para as telas Home, UserDetails, EditUser e AddUser
 const Stack = createStackNavigator<RootStackParamList>();
 
 const HomeStackNavigator = () => {
@@ -72,7 +62,7 @@ const HomeStackNavigator = () => {
         options={{ title: "Editar Usuário" }}
       />
       <Stack.Screen
-        name="AddUser" // Adicionando a tela de adicionar usuário
+        name="AddUser"
         component={AddUserScreen}
         options={{ title: "Adicionar Usuário" }}
       />
@@ -80,17 +70,18 @@ const HomeStackNavigator = () => {
   );
 };
 
-// Criando o Drawer Navigator para Home, About, e Tabs
 const Drawer = createDrawerNavigator();
 
 const App = () => {
   return (
-    <NavigationContainer>
-      <Drawer.Navigator initialRouteName="HomeStack">
-        <Drawer.Screen name="HomeStack" component={HomeStackNavigator} />
-        <Drawer.Screen name="About" component={AboutScreen} />
-      </Drawer.Navigator>
-    </NavigationContainer>
+    <UserProvider>
+      <NavigationContainer>
+        <Drawer.Navigator initialRouteName="HomeStack">
+          <Drawer.Screen name="HomeStack" component={HomeStackNavigator} />
+          <Drawer.Screen name="About" component={AboutScreen} />
+        </Drawer.Navigator>
+      </NavigationContainer>
+    </UserProvider>
   );
 };
 

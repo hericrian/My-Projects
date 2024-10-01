@@ -1,92 +1,91 @@
-import { RouteProp } from "@react-navigation/native";
-import { StackNavigationProp } from "@react-navigation/stack";
-import React, { useEffect, useState } from "react";
-import { Button, Text, TextInput, View } from "react-native";
+import React, { useEffect, useState } from 'react';
+import { View, Text, TextInput, Button, StyleSheet, Alert } from 'react-native';
+import axios from 'axios';
+import { useNavigation, useRoute } from '@react-navigation/native';
 
-// Definir o tipo de navegação e rotas
-type RootStackParamList = {
-  Home: undefined;
-  EditUser: { userId: number }; // Especifica que EditUser espera um parâmetro userId do tipo número
+type RouteParams = {
+  userId: number;
 };
 
-type EditUserScreenRouteProp = RouteProp<RootStackParamList, 'EditUser'>;
-type EditUserScreenNavigationProp = StackNavigationProp<RootStackParamList, 'EditUser'>;
+const EditUserScreen = () => {
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { userId } = route.params as RouteParams; // Definindo o tipo da rota
+  const [user, setUser] = useState<{ id: number; name: string; email: string }>({ id: 0, name: '', email: '' });
 
-type Props = {
-  route: EditUserScreenRouteProp;
-  navigation: EditUserScreenNavigationProp;
-};
-
-const EditUser: React.FC<Props> = ({ route, navigation }) => {
-  const { userId } = route.params; // userId agora está tipado corretamente
-  const [user, setUser] = useState({
-    name: "",
-    email: "",
-    login: "",
-    password: "",
-    city: "",
-  });
-
-  // Carregar os dados do usuário
-  useEffect(() => {
-    fetch(`http://192.168.0.101:3000/users/${userId}`)
-      .then((response) => response.json())
-      .then((data) => setUser(data))
-      .catch((error) => console.error("Erro ao carregar dados do usuário:", error));
-  }, [userId]);
-
-  const handleChange = (field: string, value: string) => {
-    setUser({ ...user, [field]: value });
+  const fetchUserDetails = async () => {
+    try {
+      const response = await axios.get(`http://192.168.1.228:3000/users/${userId}`);
+      setUser(response.data);
+    } catch (error) {
+      console.error("Erro ao buscar detalhes do usuário:", error);
+      Alert.alert("Erro", "Não foi possível buscar os detalhes do usuário.");
+    }
   };
 
-  const handleUpdateUser = () => {
-    fetch(`http://192.168.0.101:3000/users/${userId}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    })
-      .then((response) => response.json())
-      .then(() => {
-        alert("Usuário atualizado com sucesso!");
-        navigation.goBack(); // Volta para a tela anterior
-      })
-      .catch((error) => console.error("Erro ao atualizar o usuário:", error));
+  useEffect(() => {
+    fetchUserDetails();
+  }, []);
+
+  const handleUpdateUser = async () => {
+    if (!user.name || !user.email) {
+      Alert.alert("Erro", "Por favor, preencha todos os campos.");
+      return;
+    }
+
+    try {
+      await axios.put(`http://192.168.1.228:3000/users/${userId}`, user);
+      Alert.alert("Sucesso", "Usuário atualizado com sucesso.");
+      navigation.goBack();
+    } catch (error) {
+      console.error("Erro ao atualizar usuário:", error);
+      Alert.alert("Erro", "Não foi possível atualizar o usuário.");
+    }
   };
 
   return (
-    <View>
-      <Text>DADOS DO USUÁRIO - {user.name} </Text>
+    <View style={styles.container}>
+      <Text style={styles.title}>Editar Usuário</Text>
       <TextInput
+        style={styles.input}
         placeholder="Nome"
         value={user.name}
-        onChangeText={(value) => handleChange("name", value)}
+        onChangeText={(text) => setUser({ ...user, name: text })}
       />
       <TextInput
+        style={styles.input}
         placeholder="Email"
         value={user.email}
-        onChangeText={(value) => handleChange("email", value)}
+        onChangeText={(text) => setUser({ ...user, email: text })}
       />
-      <TextInput
-        placeholder="Login"
-        value={user.login}
-        onChangeText={(value) => handleChange("login", value)}
-      />
-      <TextInput
-        placeholder="Senha"
-        secureTextEntry
-        value={user.password}
-        onChangeText={(value) => handleChange("password", value)}
-      />
-      <TextInput
-        placeholder="Cidade"
-        value={user.city}
-        onChangeText={(value) => handleChange("city", value)}
-      />
-      <Button title="Salvar" onPress={handleUpdateUser} />
+      <Button title="Salvar" onPress={handleUpdateUser} color="#6200ea" />
     </View>
   );
 };
 
-export default EditUser;
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    padding: 20,
+    justifyContent: "center",
+    backgroundColor: "#ffffff",
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: "bold",
+    marginBottom: 20,
+    textAlign: "center",
+    color: "#6200ea",
+  },
+  input: {
+    height: 50,
+    borderColor: '#6200ea',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 20,
+    paddingHorizontal: 10,
+    backgroundColor: "#f9f9f9",
+  },
+});
+
+export default EditUserScreen;

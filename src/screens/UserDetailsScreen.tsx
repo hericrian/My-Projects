@@ -1,53 +1,30 @@
-import { RouteProp } from "@react-navigation/native";
-import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, StyleSheet, Text, View } from "react-native";
+import axios from "axios";
+import { RouteProp } from "@react-navigation/native";
+import { StackNavigationProp } from "@react-navigation/stack";
+import { RootStackParamList } from "../types/navigation";
 
-// Defina os parâmetros esperados pela navegação
-type RootStackParamList = {
-  Home: undefined;
-  UserDetails: { userId: number };
-};
+type UserDetailsScreenNavigationProp = StackNavigationProp<RootStackParamList, 'UserDetails'>;
 
-// Defina os tipos para as props da tela de detalhes
-type UserDetailsScreenRouteProp = RouteProp<RootStackParamList, "UserDetails">;
+interface Props {
+  navigation: UserDetailsScreenNavigationProp;
+  route: RouteProp<RootStackParamList, 'UserDetails'>;
+}
 
-type UserDetailsScreenProps = {
-  route: UserDetailsScreenRouteProp;
-};
-
-// Defina o tipo do usuário que você vai buscar
-type User = {
-  id: number;
-  name: string;
-  email: string;
-  phone: string;
-  website: string;
-  company: {
-    name: string;
-  };
-  address: {
-    street: string;
-    suite: string;
-    city: string;
-    zipcode: string;
-  };
-};
-
-const UserDetailsScreen: React.FC<UserDetailsScreenProps> = ({ route }) => {
-  const { userId } = route.params; // Pega o userId dos parâmetros da rota
-  const [user, setUser] = useState<User | null>(null);
+const UserDetailsScreen: React.FC<Props> = ({ route }) => {
+  const { userId } = route.params;
+  const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
       try {
-        const response = await axios.get(
-          `https://jsonplaceholder.typicode.com/users/${userId}`
-        );
+        const response = await axios.get(`http://192.168.1.228:3000/users/${userId}`);
         setUser(response.data);
       } catch (error) {
         console.error("Erro ao buscar detalhes do usuário:", error);
+        Alert.alert("Erro", "Não foi possível carregar os dados do usuário.");
       } finally {
         setLoading(false);
       }
@@ -60,25 +37,12 @@ const UserDetailsScreen: React.FC<UserDetailsScreenProps> = ({ route }) => {
     return <ActivityIndicator size="large" color="#6200ea" />;
   }
 
-  if (!user) {
-    return (
-      <View style={styles.errorContainer}>
-        <Text>Erro ao carregar os dados do usuário.</Text>
-      </View>
-    );
-  }
-
   return (
     <View style={styles.container}>
-      <Text style={styles.name}>{user.name}</Text>
-      <Text style={styles.detail}>Email: {user.email}</Text>
-      <Text style={styles.detail}>Telefone: {user.phone}</Text>
-      <Text style={styles.detail}>Website: {user.website}</Text>
-      <Text style={styles.detail}>Empresa: {user.company.name}</Text>
-      <Text style={styles.detail}>
-        Endereço: {user.address.street}, {user.address.suite},{" "}
-        {user.address.city}, {user.address.zipcode}
-      </Text>
+      <Text style={styles.title}>{user.name}</Text>
+      <Text>Email: {user.email}</Text>
+      <Text>Login: {user.login}</Text>
+      <Text>Cidade: {user.city}</Text>
     </View>
   );
 };
@@ -89,19 +53,10 @@ const styles = StyleSheet.create({
     padding: 20,
     backgroundColor: "#fff",
   },
-  name: {
+  title: {
     fontSize: 24,
     fontWeight: "bold",
     marginBottom: 10,
-  },
-  detail: {
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
   },
 });
 
